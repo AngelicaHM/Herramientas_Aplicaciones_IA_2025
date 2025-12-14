@@ -72,13 +72,36 @@ class HyAIA:
                 min_values.loc[col] = ['N/A']
                 pass
         #Lista de valores con su desviación estandar
-        
-        #Lista de valores con los percentiles
-        
+        std_values = pd.DataFrame(index=self.data.columns, columns=['Std_values'])
+        std_values.loc[:, 'Std_values'] = 'N/A'
+        for col in num_cols:
+            std_values.loc[col, 'Std_values'] = self.data[col].std() 
+        #Lista de valores con los percentiles (25%, 50%, 75%)
+        percentile_values = pd.DataFrame(index=self.data.columns, columns=['P25', 'P50', 'P75'])
+        percentile_values.loc[:, :] = 'N/A'
+        for col in num_cols:
+            q = self.data[col].quantile([0.25, 0.50, 0.75])
+            percentile_values.loc[col, 'P25'] = q.loc[0.25]
+            percentile_values.loc[col, 'P50'] = q.loc[0.50]
+            percentile_values.loc[col, 'P75'] = q.loc[0.75]
         #Lista de valores con la media
-           
-        return columns.join(data_dtypes).join(present_values).join(missing_values).join(unique_values).join(max_values).join(min_values)
-
+        mean_values = pd.DataFrame(index=self.data.columns, columns=['Mean_values'])
+        mean_values.loc[:, 'Mean_values'] = 'N/A'
+        for col in num_cols:
+            mean_values.loc[col, 'Mean_values'] = self.data[col].mean()
+    
+        return (
+            columns
+            .join(data_dtypes)
+            .join(present_values)
+            .join(missing_values)
+            .join(unique_values)
+            .join(max_values)
+            .join(min_values)
+            .join(std_values)
+            .join(percentile_values)
+            .join(mean_values)
+        )
     
   #  def categoricos_limpieza(self):
   #      for col in self.categoricos_columns:
